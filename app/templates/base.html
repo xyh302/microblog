@@ -38,9 +38,9 @@
                         <a href="{{ url_for('main.messages') }}">
                             {{ _('Messages') }}
                             {% set new_messages = current_user.new_messages() %}
-                            <span id="message_cout" class="badge"
-                                style="visibility": {% if new_messages %}visible
-                                                    {% else %}hidden {% endif %};>
+                            <span id="message_count" class="badge"
+                                style="visibility: {% if new_messages %}visible
+                                                    {% else %}hidden{% endif %};">
                                 {{ new_messages }}
                             </span>
                         </a>
@@ -145,20 +145,22 @@
             $('#message_count').text(n);
             $('#message_count').css('visibility', n ? 'visible' : 'hidden');
         }
+		function set_task_progress(task_id, progress) {
+            $('#' + task_id + '-progress').text(progress);
+        }
         {% if current_user.is_authenticated %}
         $(function() {
             var since = 0;
             setInterval(function() {
-                $.ajax('{{ url_for('main.notifications') }}?since=' + since)
+                $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
                     function(notifications) {
-                        for (var i = 0;i < notifications.length; i++) {
+                        for (var i = 0; i < notifications.length; i++) {
                             switch (notifications[i].name) {
                                 case 'unread_message_count':
                                     set_message_count(notifications[i].data);
                                     break;
                                 case 'task_progress':
-                                    set_task_progress(
-                                        notifications[i].data.task_id,
+                                    set_task_progress(notifications[i].data.task_id,
                                         notifications[i].data.progress);
                                     break;
                             }
@@ -169,8 +171,5 @@
             }, 10000);
         });
         {% endif %}
-        function set_task_progress(task_id, progress) {
-            $('#' + task_id + '-progress').text(progress);
-        }
     </script>
 {% endblock %}
